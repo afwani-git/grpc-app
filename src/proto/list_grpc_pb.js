@@ -38,6 +38,17 @@ function deserialize_list_Item(buffer_arg) {
   return list_pb.Item.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_list_ItemFilterReq(arg) {
+  if (!(arg instanceof list_pb.ItemFilterReq)) {
+    throw new Error('Expected argument of type list.ItemFilterReq');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_list_ItemFilterReq(buffer_arg) {
+  return list_pb.ItemFilterReq.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_list_ItemReq(arg) {
   if (!(arg instanceof list_pb.ItemReq)) {
     throw new Error('Expected argument of type list.ItemReq');
@@ -62,8 +73,8 @@ function deserialize_list_ResultResponse(buffer_arg) {
 
 
 var ListServiceService = exports.ListServiceService = {
-  getList: {
-    path: '/list.ListService/GetList',
+  getAllItems: {
+    path: '/list.ListService/GetAllItems',
     requestStream: false,
     responseStream: false,
     requestType: google_protobuf_empty_pb.Empty,
@@ -84,14 +95,25 @@ var ListServiceService = exports.ListServiceService = {
     responseSerialize: serialize_list_Item,
     responseDeserialize: deserialize_list_Item,
   },
-  deleteList: {
-    path: '/list.ListService/DeleteList',
+  deleteItem: {
+    path: '/list.ListService/DeleteItem',
     requestStream: false,
     responseStream: false,
     requestType: list_pb.ItemReq,
     responseType: list_pb.Item,
     requestSerialize: serialize_list_ItemReq,
     requestDeserialize: deserialize_list_ItemReq,
+    responseSerialize: serialize_list_Item,
+    responseDeserialize: deserialize_list_Item,
+  },
+  filterItems: {
+    path: '/list.ListService/FilterItems',
+    requestStream: false,
+    responseStream: true,
+    requestType: list_pb.ItemFilterReq,
+    responseType: list_pb.Item,
+    requestSerialize: serialize_list_ItemFilterReq,
+    requestDeserialize: deserialize_list_ItemFilterReq,
     responseSerialize: serialize_list_Item,
     responseDeserialize: deserialize_list_Item,
   },

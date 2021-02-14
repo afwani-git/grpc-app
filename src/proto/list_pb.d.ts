@@ -14,6 +14,9 @@ export class Item extends jspb.Message {
     getTitle(): string;
     setTitle(value: string): Item;
 
+    getStatus(): string;
+    setStatus(value: string): Item;
+
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Item.AsObject;
@@ -29,12 +32,37 @@ export namespace Item {
     export type AsObject = {
         id: string,
         title: string,
+        status: string,
+    }
+}
+
+export class ItemFilterReq extends jspb.Message { 
+    getStatus(): string;
+    setStatus(value: string): ItemFilterReq;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): ItemFilterReq.AsObject;
+    static toObject(includeInstance: boolean, msg: ItemFilterReq): ItemFilterReq.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: ItemFilterReq, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): ItemFilterReq;
+    static deserializeBinaryFromReader(message: ItemFilterReq, reader: jspb.BinaryReader): ItemFilterReq;
+}
+
+export namespace ItemFilterReq {
+    export type AsObject = {
+        status: string,
     }
 }
 
 export class CreateItemReq extends jspb.Message { 
     getTitle(): string;
     setTitle(value: string): CreateItemReq;
+
+    getStatus(): string;
+    setStatus(value: string): CreateItemReq;
 
 
     serializeBinary(): Uint8Array;
@@ -50,6 +78,7 @@ export class CreateItemReq extends jspb.Message {
 export namespace CreateItemReq {
     export type AsObject = {
         title: string,
+        status: string,
     }
 }
 

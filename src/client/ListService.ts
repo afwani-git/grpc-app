@@ -1,8 +1,7 @@
-import { Client, credentials, ServiceError } from '@grpc/grpc-js';
+import {  credentials, ServiceError } from '@grpc/grpc-js';
 import {Empty} from 'google-protobuf/google/protobuf/empty_pb';
 import { ListServiceClient } from '../proto/list_grpc_pb';
-import { CreateItemReq, Item, ItemReq, ResultResponse } from '../proto/list_pb';
-
+import { CreateItemReq, Item, ItemFilterReq, ItemReq, ResultResponse } from '../proto/list_pb';
 
 export class ListService{
   
@@ -17,7 +16,7 @@ export class ListService{
   async getList(): Promise<ResultResponse>{
     return new Promise((resolve, reject): void => {
         const req = new Empty();
-        this.client.getList(req, (err: ServiceError, res: ResultResponse) => {
+        this.client.getAllItems(req, (err: ServiceError, res: ResultResponse) => {
           if(err){
             reject(err)
           }else{
@@ -47,7 +46,7 @@ export class ListService{
   async deleteItem(param: ItemReq): Promise<Item>{
     return new Promise((resolve, reject) => {
         
-      this.client.deleteList(param,  (err: ServiceError, response: Item) => {
+      this.client.deleteItem(param,  (err: ServiceError, response: Item) => {
         if(err){
           reject(err);
         }else{
@@ -58,4 +57,9 @@ export class ListService{
 
     })
   }
+
+  filterItems(param: ItemFilterReq){
+    return this.client.filterItems(param);
+  }
+
 }

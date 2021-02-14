@@ -1,8 +1,9 @@
-import {  sendUnaryData, ServerUnaryCall, UntypedHandleCall } from '@grpc/grpc-js';
+import {  sendUnaryData, ServerUnaryCall, UntypedHandleCall  } from '@grpc/grpc-js';
+import { ServerWritableStream} from '@grpc/grpc-js/build/src/server-call';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { v4 as uuidv4 } from 'uuid';
 import { IListServiceServer } from '../proto/list_grpc_pb';
-import { ItemReq, CreateItemReq, Item, ResultResponse } from '../proto/list_pb';
+import { ItemReq, CreateItemReq, Item, ResultResponse, ItemFilterReq } from '../proto/list_pb';
 
 let list: Item[] = [];
 
@@ -12,12 +13,14 @@ export class ListService implements IListServiceServer{
     createItem(call: ServerUnaryCall<CreateItemReq, Item> , callback: sendUnaryData<Item> ){
         let item: Item = new Item()
                             .setId(uuidv4())
-                            .setTitle(call.request.getTitle());
+                            .setTitle(call.request.getTitle())
+                            .setStatus(call.request.getStatus());
         list.push(item);
         callback(null, item);
         
     }
-    getList(_call: ServerUnaryCall<Empty, ResultResponse>, callback: sendUnaryData<ResultResponse>){
+
+    getAllItems(_call: ServerUnaryCall<Empty, ResultResponse>, callback: sendUnaryData<ResultResponse>){
         
         const response = new ResultResponse();
 
@@ -26,7 +29,7 @@ export class ListService implements IListServiceServer{
         return callback(null, response);
     }
 
-    deleteList(call: ServerUnaryCall<ItemReq, Item>, callback: sendUnaryData<Item>){
+    deleteItem(call: ServerUnaryCall<ItemReq, Item>, callback: sendUnaryData<Item>){
         const id = call.request.getId();    
         
         let item: Item;
@@ -36,5 +39,15 @@ export class ListService implements IListServiceServer{
         list =  list.filter(data => data.getId() != item.getId());
 
         callback(null, item);
+    }
+    
+    filterItems(call: ServerWritableStream<ItemFilterReq, Item>){
+        list.map(data => {
+            if(data.getStatus() == call.request.getStatus()){
+                call.write(data);
+            }
+        })
+        
+        call.end();
     }
 }

@@ -1,13 +1,8 @@
 #!/usr/bin/env node
-import { Client, credentials, ServiceError } from '@grpc/grpc-js';
-//const clientService = new ListService();
 import * as yargs from 'yargs';
 import ora from 'ora';
-import { hidenBin } from 'yargs/helpers'
-import {Empty} from 'google-protobuf/google/protobuf/empty_pb';
 import { ListService } from './ListService';
-import { CreateItemReq, Item, ItemReq, ResultResponse } from '../proto/list_pb';
-import {argv} from 'yargs';
+import { CreateItemReq, Item, ItemReq, ResultResponse, ItemFilterReq } from '../proto/list_pb';
 
 const client = new ListService();
 const spinner = ora('loading').start();
@@ -29,18 +24,25 @@ yargs
       console.log(result.toObject());
     }
   })
-  .command('createItem [title]', 'create new item',
+  .command('createItem [title] [status]', 'create new item',
   (yargs) => {
     yargs.positional('title', {
       desc: 'title item'
     })
+    
+    yargs.positional('status', {
+      desc: 'status item'
+    })
+
   },
   async (argv) => {
-    if(argv.title == undefined){
-      return console.log('title required')
+    if(argv.title == undefined && argv.status == undefined){
+      spinner.fail('titile and status arg required');
     }else{
       const title: string = argv.title as string;
+      const status: string = argv.status as string;
       const param = new CreateItemReq();
+      param.setStatus(status);
       param.setTitle(title);
       const result = await client.createItem(param);
       if(result){
@@ -57,8 +59,7 @@ yargs
   },
   async (argv) => {
     if(argv.uuid == undefined){
-      cond.msg = 'uuid is required !'
-      cond.status = 'fail';
+      spinner.fail('uuid required');
     }else{
       const uuid: string = argv.uuid as string;
       const param = new ItemReq();
@@ -70,6 +71,34 @@ yargs
         console.log(result.toObject());
       }
 
+    }
+  })
+  .command('filterItems [status]', 'filter item by status',
+  (yargs) => {
+    yargs.positional('status', {
+      desc: 'status item'
+    })
+  },
+  async (argv) => {
+    if(argv.status == undefined){
+      spinner.fail('status args required');
+    }else{
+      spinner.succeed('data has riceved');
+      const status: string = argv.status as string;
+      const param = new ItemFilterReq().setStatus(status);
+      const call = client.filterItems(param);
+      
+      call.on('data', (data) => {
+        console.log(data);
+      })
+      
+      call.on('error', (err) => {
+        console.log(err);
+      })
+
+      call.on('end', () => {
+        console.log('data end');
+      })
     }
   })
   .argv
