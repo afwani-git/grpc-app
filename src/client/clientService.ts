@@ -3,7 +3,7 @@ import {Empty} from 'google-protobuf/google/protobuf/empty_pb';
 import { ListServiceClient } from '../proto/list_grpc_pb';
 import { CreateItemReq, Item, ItemFilterReq, ItemReq, ResultResponse } from '../proto/list_pb';
 
-export class ListService{
+export class ClientService{
   
   private readonly client: ListServiceClient = new ListServiceClient('127.0.0.1:3000', credentials.createInsecure(),{
   'grpc.keepalive_time_ms': 120000,

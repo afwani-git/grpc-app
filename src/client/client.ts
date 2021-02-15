@@ -2,10 +2,10 @@
 import * as yargs from 'yargs';
 import ora from 'ora';
 import * as fs from 'fs';
-import { ListService } from './listService';
+import { ClientService } from './clientService';
 import { CreateItemReq,  ItemReq,  ItemFilterReq } from '../proto/list_pb';
 
-const client = new ListService();
+const client = new ClientService();
 const spinner = ora('loading').start();
 
 spinner.color = 'blue';
