@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { ServiceError } from '@grpc/grpc-js';
 import * as yargs from 'yargs';
 import ora from 'ora';
 import * as fs from 'fs';
@@ -33,19 +34,24 @@ yargs
 
   },
   async (argv) => {
-    if(argv.title == undefined && argv.status == undefined){
-      spinner.fail('titile and status arg required');
-    }else{
-      const title: string = argv.title as string;
-      const status: string = argv.status as string;
-      const param = new CreateItemReq();
-      param.setStatus(status);
-      param.setTitle(title);
-      const result = await client.createItem(param);
-      if(result){
-        spinner.succeed('data has fetched');
-        console.log(result.toObject());
+    
+    try {
+      if(argv.title == undefined && argv.status == undefined){
+        spinner.fail('titile and status arg required');
+      }else{
+        const title: string = argv.title as string;
+        const status: string = argv.status as string;
+        const param = new CreateItemReq();
+        param.setStatus(status);
+        param.setTitle(title);
+        const result = await client.createItem(param);
+        if(result){
+          spinner.succeed('data has fetched');
+          console.log(result.toObject());
+        }
       }
+    } catch(err) {
+      spinner.fail(err.details); 
     }
   })
   .command('deleteItem [uuid]', 'delete item by uuid',
@@ -55,19 +61,22 @@ yargs
     })
   },
   async (argv) => {
-    if(argv.uuid == undefined){
-      spinner.fail('uuid required');
-    }else{
-      const uuid: string = argv.uuid as string;
-      const param = new ItemReq();
-      param.setId(uuid);
-      const result = await client.deleteItem(param);
-      
-      if(result){
-        spinner.succeed('data has fetched');
-        console.log(result.toObject());
+    try{
+      if(argv.uuid == undefined){
+        spinner.fail('uuid required');
+      }else{
+        const uuid: string = argv.uuid as string;
+        const param = new ItemReq();
+        param.setId(uuid);
+        const result = await client.deleteItem(param);
+        
+        if(result){
+          spinner.succeed('data has fetched');
+          console.log(result.toObject());
+        }
       }
-
+    }catch(err){
+      spinner.fail(err.details);
     }
   })
   .command('filterItems [status]', 'filter item by status',
@@ -105,28 +114,32 @@ yargs
     })
   },
   async (argv) => {
-    if(argv.locateFile == undefined){
-      spinner.fail('locateFile args required');
-    }else{
+    try{
+      if(argv.locateFile == undefined){
+        spinner.fail('locateFile args required');
+      }else{
 
-      const locateFile: string =  argv.locateFile as string;
-      const rawData = fs.readFileSync(locateFile, 'utf8');
-      const data = JSON.parse(rawData);
+        const locateFile: string =  argv.locateFile as string;
+        const rawData = fs.readFileSync(locateFile, 'utf8');
+        const data = JSON.parse(rawData);
+          
+        const param: CreateItemReq = new CreateItemReq();
+        const params: CreateItemReq[] = [];
+
+        data.item.map((dat) => {
+            param.setTitle(dat.title);
+            param.setStatus(dat.status);
+            params.push(param);
+        })
         
-      const param: CreateItemReq = new CreateItemReq();
-      const params: CreateItemReq[] = [];
-
-      data.item.map((dat) => {
-          param.setTitle(dat.title);
-          param.setStatus(dat.status);
-          params.push(param);
-      })
-      
-      const result = await client.batchCreate(params);
-      if(result){
-        spinner.succeed('data has fetched');
-        console.log(result);
+        const result = await client.batchCreate(params);
+        if(result){
+          spinner.succeed('data has fetched');
+          console.log(result);
+        }
       }
+    }catch(err){
+      spinner.fail(err.details);
     }
   })
   .argv
