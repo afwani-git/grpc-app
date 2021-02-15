@@ -117,6 +117,17 @@ var ListServiceService = exports.ListServiceService = {
     responseSerialize: serialize_list_Item,
     responseDeserialize: deserialize_list_Item,
   },
+  batchCreate: {
+    path: '/list.ListService/BatchCreate',
+    requestStream: true,
+    responseStream: false,
+    requestType: list_pb.CreateItemReq,
+    responseType: list_pb.ResultResponse,
+    requestSerialize: serialize_list_CreateItemReq,
+    requestDeserialize: deserialize_list_CreateItemReq,
+    responseSerialize: serialize_list_ResultResponse,
+    responseDeserialize: deserialize_list_ResultResponse,
+  },
 };
 
 exports.ListServiceClient = grpc.makeGenericClientConstructor(ListServiceService);

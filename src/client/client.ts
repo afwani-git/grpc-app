@@ -1,22 +1,19 @@
 #!/usr/bin/env node
 import * as yargs from 'yargs';
 import ora from 'ora';
-import { ListService } from './ListService';
-import { CreateItemReq, Item, ItemReq, ResultResponse, ItemFilterReq } from '../proto/list_pb';
+import * as fs from 'fs';
+import { ListService } from './listService';
+import { CreateItemReq,  ItemReq,  ItemFilterReq } from '../proto/list_pb';
 
 const client = new ListService();
 const spinner = ora('loading').start();
 
-const cond = {
-  msg: '',
-  status: 'process'
-}
 spinner.color = 'blue';
 
 yargs
   .command('getAllItem', 'get allItem', 
    (_yargs) => {}, 
-   async (argv) => {
+   async (_argv) => {
     const result = await client.getList(); 
     
     if(result){
@@ -99,6 +96,37 @@ yargs
       call.on('end', () => {
         console.log('data end');
       })
+    }
+  })
+  .command('batchCreate [locateFile]', 'batch create item',
+  (yargs) => {
+    yargs.positional('locateFile', {
+      desc: 'locate file [json extension only]'
+    })
+  },
+  async (argv) => {
+    if(argv.locateFile == undefined){
+      spinner.fail('locateFile args required');
+    }else{
+
+      const locateFile: string =  argv.locateFile as string;
+      const rawData = fs.readFileSync(locateFile, 'utf8');
+      const data = JSON.parse(rawData);
+        
+      const param: CreateItemReq = new CreateItemReq();
+      const params: CreateItemReq[] = [];
+
+      data.item.map((dat) => {
+          param.setTitle(dat.title);
+          param.setStatus(dat.status);
+          params.push(param);
+      })
+      
+      const result = await client.batchCreate(params);
+      if(result){
+        spinner.succeed('data has fetched');
+        console.log(result);
+      }
     }
   })
   .argv

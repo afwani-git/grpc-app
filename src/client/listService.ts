@@ -62,4 +62,24 @@ export class ListService{
     return this.client.filterItems(param);
   }
 
+  batchCreate(params: CreateItemReq[]){
+    
+    return new Promise((resolve, reject) => {
+      const call =  this.client.batchCreate((err, response) => {
+        if(err){
+          reject(err);
+        }else{
+          resolve(response);
+        }
+        this.client.close();
+      });
+
+      params.map(param => {
+        call.write(param);
+      })
+      
+      call.end();
+    })
+
+  }
 }
