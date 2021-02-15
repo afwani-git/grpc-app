@@ -3,7 +3,7 @@ import * as yargs from 'yargs';
 import ora from 'ora';
 import * as fs from 'fs';
 import { ClientService } from './clientService';
-import { CreateItemReq,  ItemReq,  ItemFilterReq } from '../proto/list_pb';
+import { CreateItemReq, Item, ItemReq,  ItemFilterReq, UpdateItemReq } from '../proto/list_pb';
 
 const client = new ClientService();
 const spinner = ora('loading').start();
@@ -96,6 +96,49 @@ yargs
       call.on('end', () => {
         console.log('data end');
       })
+    }
+  })
+  .command('updateItem [locateFile]', 'update item by given file json',
+  (yargs) => {
+    yargs.positional('locateFile', {
+      desc: 'locate file [json extension only]'
+    })
+  },
+  async (argv) => {
+    if(argv.locateFile == undefined){
+      spinner.fail('locateFile args required');
+    }else{
+
+      const locateFile: string =  argv.locateFile as string;
+      const rawData = fs.readFileSync(locateFile, 'utf8');
+      const data = JSON.parse(rawData);
+
+      const call = client.updateItem(); 
+
+      //read/response
+      call.on('data', (data) => {
+        console.log(data);
+      })
+
+      call.on('error', (err) => {
+        spinner.fail(err.message);
+      })
+      
+      call.on('end', () => {
+        spinner.succeed('end');
+      })
+
+      const param: UpdateItemReq = new UpdateItemReq();
+      //write to server
+      data.item.map((item) => {
+        param.setId(item.id);
+        param.setTitle(item.title);
+        param.setStatus(item.status);
+        
+        call.write(param);
+      });
+
+      call.end();      
     }
   })
   .command('batchCreate [locateFile]', 'batch create item',

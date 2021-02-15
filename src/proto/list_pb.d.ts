@@ -36,6 +36,35 @@ export namespace Item {
     }
 }
 
+export class UpdateItemReq extends jspb.Message { 
+    getId(): string;
+    setId(value: string): UpdateItemReq;
+
+    getTitle(): string;
+    setTitle(value: string): UpdateItemReq;
+
+    getStatus(): string;
+    setStatus(value: string): UpdateItemReq;
+
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): UpdateItemReq.AsObject;
+    static toObject(includeInstance: boolean, msg: UpdateItemReq): UpdateItemReq.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: UpdateItemReq, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): UpdateItemReq;
+    static deserializeBinaryFromReader(message: UpdateItemReq, reader: jspb.BinaryReader): UpdateItemReq;
+}
+
+export namespace UpdateItemReq {
+    export type AsObject = {
+        id: string,
+        title: string,
+        status: string,
+    }
+}
+
 export class ItemFilterReq extends jspb.Message { 
     getStatus(): string;
     setStatus(value: string): ItemFilterReq;

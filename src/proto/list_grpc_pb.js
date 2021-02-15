@@ -71,6 +71,17 @@ function deserialize_list_ResultResponse(buffer_arg) {
   return list_pb.ResultResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_list_UpdateItemReq(arg) {
+  if (!(arg instanceof list_pb.UpdateItemReq)) {
+    throw new Error('Expected argument of type list.UpdateItemReq');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_list_UpdateItemReq(buffer_arg) {
+  return list_pb.UpdateItemReq.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 
 var ListServiceService = exports.ListServiceService = {
   getAllItems: {
@@ -127,6 +138,17 @@ var ListServiceService = exports.ListServiceService = {
     requestDeserialize: deserialize_list_CreateItemReq,
     responseSerialize: serialize_list_ResultResponse,
     responseDeserialize: deserialize_list_ResultResponse,
+  },
+  updateItem: {
+    path: '/list.ListService/UpdateItem',
+    requestStream: true,
+    responseStream: true,
+    requestType: list_pb.UpdateItemReq,
+    responseType: list_pb.Item,
+    requestSerialize: serialize_list_UpdateItemReq,
+    requestDeserialize: deserialize_list_UpdateItemReq,
+    responseSerialize: serialize_list_Item,
+    responseDeserialize: deserialize_list_Item,
   },
 };
 
