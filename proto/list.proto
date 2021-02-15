@@ -9,6 +9,12 @@ message Item {
   string status = 3;
 }
 
+message UpdateItemReq{
+  string id = 1;
+  string title = 2;
+  string status = 3;
+} 
+
 message ItemFilterReq{
   string status = 1;
 }
@@ -32,6 +38,7 @@ service ListService{
   rpc DeleteItem(ItemReq) returns(Item);
   rpc FilterItems(ItemFilterReq) returns(stream Item);
   rpc BatchCreate(stream CreateItemReq) returns(ResultResponse);
+  rpc UpdateItem(stream UpdateItemReq) returns(stream Item);
 }
 
 

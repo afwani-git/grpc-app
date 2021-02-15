@@ -1,9 +1,9 @@
-import {  ClientWritableStream, sendUnaryData, ServerUnaryCall, UntypedHandleCall  } from '@grpc/grpc-js';
-import { ServerReadableStream, ServerWritableStream} from '@grpc/grpc-js/build/src/server-call';
+import {  sendUnaryData, ServerUnaryCall, UntypedHandleCall  } from '@grpc/grpc-js';
+import { ServerDuplexStream, ServerReadableStream, ServerWritableStream} from '@grpc/grpc-js/build/src/server-call';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb';
 import { v4 as uuidv4 } from 'uuid';
 import { IListServiceServer } from '../proto/list_grpc_pb';
-import { ItemReq, CreateItemReq, Item, ResultResponse, ItemFilterReq } from '../proto/list_pb';
+import { ItemReq, CreateItemReq, Item, ResultResponse, ItemFilterReq, UpdateItemReq } from '../proto/list_pb';
 
 let list: Item[] = [];
 
@@ -56,12 +56,13 @@ export class ListService implements IListServiceServer{
         const item: Item = new Item();
         const result: Item[] = [];
         const response = new ResultResponse();
-
+        
         call.on('data', (data: CreateItemReq) => {
             item.setTitle(data.getTitle());
             item.setStatus(data.getStatus());
             item.setId(uuidv4());
             result.push(item);
+            list.push(item);
         });
 
         call.on('erro',(err) => {
@@ -73,6 +74,33 @@ export class ListService implements IListServiceServer{
             callback(null, response);
         });
     }
+    
+    updateItem(call: ServerDuplexStream<UpdateItemReq, Item>){
+        
+        const param = new Item();
 
+        call.on('data',(data: UpdateItemReq) => {
+            
+            param.setId(data.getId());
+            param.setTitle(data.getTitle());
+            param.setStatus(data.getStatus());
 
+            list.map((item) => {
+                if(item.getId() == param.getId()){
+                    item.setTitle(param.getTitle());
+                    item.setStatus(param.getStatus());
+                    call.write(item);
+                }
+            });
+
+        });
+
+        call.on('error',(err) => {
+            console.error(err);
+        });
+
+        call.on('end', () => {
+            call.end();
+        })
+    }
 }

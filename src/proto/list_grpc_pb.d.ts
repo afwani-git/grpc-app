@@ -15,6 +15,7 @@ interface IListServiceService extends grpc.ServiceDefinition<grpc.UntypedService
     deleteItem: IListServiceService_IDeleteItem;
     filterItems: IListServiceService_IFilterItems;
     batchCreate: IListServiceService_IBatchCreate;
+    updateItem: IListServiceService_IUpdateItem;
 }
 
 interface IListServiceService_IGetAllItems extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, list_pb.ResultResponse> {
@@ -62,6 +63,15 @@ interface IListServiceService_IBatchCreate extends grpc.MethodDefinition<list_pb
     responseSerialize: grpc.serialize<list_pb.ResultResponse>;
     responseDeserialize: grpc.deserialize<list_pb.ResultResponse>;
 }
+interface IListServiceService_IUpdateItem extends grpc.MethodDefinition<list_pb.UpdateItemReq, list_pb.Item> {
+    path: "/list.ListService/UpdateItem";
+    requestStream: true;
+    responseStream: true;
+    requestSerialize: grpc.serialize<list_pb.UpdateItemReq>;
+    requestDeserialize: grpc.deserialize<list_pb.UpdateItemReq>;
+    responseSerialize: grpc.serialize<list_pb.Item>;
+    responseDeserialize: grpc.deserialize<list_pb.Item>;
+}
 
 export const ListServiceService: IListServiceService;
 
@@ -71,6 +81,7 @@ export interface IListServiceServer extends grpc.UntypedServiceImplementation {
     deleteItem: grpc.handleUnaryCall<list_pb.ItemReq, list_pb.Item>;
     filterItems: grpc.handleServerStreamingCall<list_pb.ItemFilterReq, list_pb.Item>;
     batchCreate: handleClientStreamingCall<list_pb.CreateItemReq, list_pb.ResultResponse>;
+    updateItem: grpc.handleBidiStreamingCall<list_pb.UpdateItemReq, list_pb.Item>;
 }
 
 export interface IListServiceClient {
@@ -89,6 +100,9 @@ export interface IListServiceClient {
     batchCreate(metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: list_pb.ResultResponse) => void): grpc.ClientWritableStream<list_pb.CreateItemReq>;
     batchCreate(options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: list_pb.ResultResponse) => void): grpc.ClientWritableStream<list_pb.CreateItemReq>;
     batchCreate(metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: list_pb.ResultResponse) => void): grpc.ClientWritableStream<list_pb.CreateItemReq>;
+    updateItem(): grpc.ClientDuplexStream<list_pb.UpdateItemReq, list_pb.Item>;
+    updateItem(options: Partial<grpc.CallOptions>): grpc.ClientDuplexStream<list_pb.UpdateItemReq, list_pb.Item>;
+    updateItem(metadata: grpc.Metadata, options?: Partial<grpc.CallOptions>): grpc.ClientDuplexStream<list_pb.UpdateItemReq, list_pb.Item>;
 }
 
 export class ListServiceClient extends grpc.Client implements IListServiceClient {
@@ -108,4 +122,6 @@ export class ListServiceClient extends grpc.Client implements IListServiceClient
     public batchCreate(metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: list_pb.ResultResponse) => void): grpc.ClientWritableStream<list_pb.CreateItemReq>;
     public batchCreate(options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: list_pb.ResultResponse) => void): grpc.ClientWritableStream<list_pb.CreateItemReq>;
     public batchCreate(metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: list_pb.ResultResponse) => void): grpc.ClientWritableStream<list_pb.CreateItemReq>;
+    public updateItem(options?: Partial<grpc.CallOptions>): grpc.ClientDuplexStream<list_pb.UpdateItemReq, list_pb.Item>;
+    public updateItem(metadata?: grpc.Metadata, options?: Partial<grpc.CallOptions>): grpc.ClientDuplexStream<list_pb.UpdateItemReq, list_pb.Item>;
 }
