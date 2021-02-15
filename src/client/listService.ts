@@ -1,7 +1,32 @@
-import {  credentials, ServiceError } from '@grpc/grpc-js';
+import {  credentials, ServiceError , Deadline, Metadata} from '@grpc/grpc-js';
 import {Empty} from 'google-protobuf/google/protobuf/empty_pb';
 import { ListServiceClient } from '../proto/list_grpc_pb';
 import { CreateItemReq, Item, ItemFilterReq, ItemReq, ResultResponse } from '../proto/list_pb';
+
+const metadata: Metadata = new Metadata();
+metadata.set('foo', 'bar');
+
+function getRPCDeadline(rpcType: number): Deadline {
+
+    let  timeAllowed = 5000
+    switch(rpcType) {
+
+        case 1:
+            timeAllowed = 5000  // LIGHT RPC
+            break
+
+        case 2 :
+            timeAllowed = 7000  // HEAVY RPC
+            break
+
+        default :
+            console.log("Invalid RPC Type: Using Default Timeout")
+
+    }
+
+    return new Date( Date.now() + timeAllowed );
+
+}
 
 export class ListService{
   
@@ -16,7 +41,8 @@ export class ListService{
   async getList(): Promise<ResultResponse>{
     return new Promise((resolve, reject): void => {
         const req = new Empty();
-        this.client.getAllItems(req, (err: ServiceError, res: ResultResponse) => {
+        this.client.getAllItems(req, metadata, { deadline: getRPCDeadline(1) },(err: ServiceError, res: ResultResponse) => {
+        
           if(err){
             reject(err)
           }else{
@@ -30,7 +56,7 @@ export class ListService{
   async createItem(param: CreateItemReq): Promise<Item>{
     return new Promise((resolve, reject): void => {
         
-      this.client.createItem(param, (err: ServiceError, response: Item) => {
+      this.client.createItem(param, metadata, { deadline: getRPCDeadline(1) }, (err: ServiceError, response: Item) => {
         if(err){
           reject(err);
         }else{
@@ -46,7 +72,7 @@ export class ListService{
   async deleteItem(param: ItemReq): Promise<Item>{
     return new Promise((resolve, reject) => {
         
-      this.client.deleteItem(param,  (err: ServiceError, response: Item) => {
+      this.client.deleteItem(param, null, { deadline: getRPCDeadline(1) } , (err: ServiceError, response: Item) => {
         if(err){
           reject(err);
         }else{
@@ -59,13 +85,13 @@ export class ListService{
   }
 
   filterItems(param: ItemFilterReq){
-    return this.client.filterItems(param);
+    return this.client.filterItems(param, { deadline: getRPCDeadline(1) });
   }
 
   batchCreate(params: CreateItemReq[]){
     
     return new Promise((resolve, reject) => {
-      const call =  this.client.batchCreate((err, response) => {
+      const call =  this.client.batchCreate({ deadline: getRPCDeadline(1) },(err, response) => {
         if(err){
           reject(err);
         }else{

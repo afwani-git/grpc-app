@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { ServiceError } from '@grpc/grpc-js';
 import * as yargs from 'yargs';
 import ora from 'ora';
 import * as fs from 'fs';
@@ -99,7 +98,7 @@ yargs
       })
       
       call.on('error', (err) => {
-        console.log(err);
+        spinner.fail(err.message);
       })
 
       call.on('end', () => {
